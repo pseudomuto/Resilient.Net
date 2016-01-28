@@ -132,7 +132,7 @@ namespace Resilient.Net.Tests
             {
                 ErrorThreshold = 2,
                 SuccessThreshold = 1,
-                InvocationTimeout = TimeSpan.FromMilliseconds(10),
+                InvocationTimeout = TimeSpan.FromMilliseconds(100),
                 ResetTimeout = TimeSpan.FromMilliseconds(200)
             };
 
@@ -191,18 +191,17 @@ namespace Resilient.Net.Tests
             public Try()
             {
                 _breaker = new DummyBreaker(TaskScheduler.Default, options);
+                _breaker.Function = () => { throw new NotImplementedException(); };
             }
 
             [Fact]
             public void OccursAfterResetTimeoutWindowLapses()
             {
-                _breaker.Function = () => { throw new NotImplementedException(); };
-
                 Assert.Throws<NotImplementedException>(() => _breaker.Execute());
                 Assert.Throws<NotImplementedException>(() => _breaker.Execute());
                 Assert.True(_breaker.IsOpen);
 
-                Thread.Sleep(50); // longer than reset timeout
+                Thread.Sleep(100); // longer than reset timeout
                 Assert.True(_breaker.IsHalfOpen);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -25,33 +26,62 @@ namespace Resilient.Net.Tests
         public class Invoke
         {
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-            private readonly CircuitBreakerState _mock = Substitute.For<CircuitBreakerState>();
+            private readonly CircuitBreakerState _state = Substitute.For<CircuitBreakerState>();
             
             [Fact]
-            public void WhenSuccessfulReturnsTheResultAndNotifiesState()
+            public void WhenGivenANullFunctionThrows()
+            {
+                Assert.Throws<ArgumentNullException>(() => _invoker.Invoke<string>(_state, null, TimeSpan.FromMilliseconds(10)));
+            }
+            
+            [Fact]
+            public void WhenFunctionRunsSuccessfullyReturnsTheResult()
             {
                 var expected = "Some value";
-                var result = _invoker.Invoke(_mock, () => expected, TimeSpan.FromSeconds(1));
+                var result = _invoker.Invoke(_state, () => expected, TimeSpan.FromSeconds(1));
 
-                _mock.Received().ExecutionSucceeded();
+                _state.Received().ExecutionSucceeded();
                 Assert.Equal(expected, result);
             }
 
             [Fact]
-            public void WhenFailedReturnsTheDefaultResultAndNotifiesState()
+            public void WhenTheTimeoutLapsesATimeoutExceptionIsThrown()
             {
-                Func<string> cmd = () => { throw new Exception("Boom-Shakalaka"); };
-                
-                try
+                Func<string> fn = () =>
                 {
-                    _invoker.Invoke(_mock, cmd, TimeSpan.FromSeconds(1));
-                    Assert.True(false, "Shouldn't have made it here");                    
-                }
-                catch (Exception exception)
+                    Thread.Sleep(50);
+                    return "not used";
+                };
+
+                Assert.Throws<CircuitBreakerTimeoutException>(() => _invoker.Invoke(_state, fn, TimeSpan.FromMilliseconds(10)));
+            }
+
+            [Fact]
+            public void WhenATimeoutOccursTheStateIsNotified()
+            {
+                Func<string> fn = () =>
                 {
-                    Assert.Equal("Boom-Shakalaka", exception.Message);
-                    _mock.Received().ExecutionFailed();
-                }
+                    Thread.Sleep(50);
+                    return "not used";
+                };
+
+                Assert.Throws<CircuitBreakerTimeoutException>(() => _invoker.Invoke(_state, fn, TimeSpan.FromMilliseconds(10)));
+                _state.Received().ExecutionFailed();
+            }
+
+            [Fact]
+            public void WhenTheFunctionThrowsItsExceptionIsPropagated()
+            {
+                Func<string> cmd = () => { throw new NotImplementedException(); };
+                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, cmd, TimeSpan.FromSeconds(1)));
+            }
+
+            [Fact]
+            public void WhenFunctionThrowsTheStateIsNotified()
+            {
+                Func<string> cmd = () => { throw new NotImplementedException(); };
+                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, cmd, TimeSpan.FromSeconds(1)));
+                _state.Received().ExecutionFailed();
             }
         }
     }

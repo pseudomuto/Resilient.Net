@@ -154,6 +154,7 @@ namespace Resilient.Net.Tests
             public void OccursWhenTimeoutsPassTheThreshold()
             {
                 _breaker.Function = () => { Thread.Sleep(300); return "Some String"; };
+                Assert.True(_breaker.IsClosed);
 
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _breaker.Execute());
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _breaker.Execute());
@@ -200,7 +201,7 @@ namespace Resilient.Net.Tests
                 Assert.Throws<NotImplementedException>(() => _breaker.Execute());
                 Assert.True(_breaker.IsOpen);
 
-                Thread.Sleep(100); // longer than reset timeout
+                Thread.Sleep(50); // longer than reset timeout
                 Assert.True(_breaker.IsHalfOpen);
             }
         }

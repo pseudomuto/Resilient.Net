@@ -182,9 +182,9 @@ namespace Resilient.Net.Tests
         {
             private static readonly CircuitBreakerOptions options = new CircuitBreakerOptions
             {
-                ErrorThreshold = 2,
+                ErrorThreshold = 1,
                 SuccessThreshold = 1,
-                InvocationTimeout = TimeSpan.FromMilliseconds(250),
+                InvocationTimeout = TimeSpan.FromSeconds(1),
                 ResetTimeout = TimeSpan.FromMilliseconds(20)
             };
 
@@ -197,7 +197,6 @@ namespace Resilient.Net.Tests
             [Fact]
             public void OccursAfterResetTimeoutWindowLapses()
             {
-                Assert.Throws<NotImplementedException>(() => _breaker.Execute());
                 Assert.Throws<NotImplementedException>(() => _breaker.Execute());
                 Assert.True(_breaker.IsOpen);
 

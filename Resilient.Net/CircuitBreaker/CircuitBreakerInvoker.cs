@@ -42,13 +42,13 @@ namespace Resilient.Net
             {
                 var task = Task<T>.Factory.StartNew(function, token.Token, TaskCreationOptions.None, _scheduler);
 
-                if (TaskCompleted(task, timeout, token))
+                if (!TaskCompleted(task, timeout, token))
                 {
-                    return task.Result;
+                    token.Cancel(true);
+                    throw new CircuitBreakerTimeoutException();                    
                 }
 
-                token.Cancel();
-                throw new CircuitBreakerTimeoutException();
+                return task.Result;
             }
         }
 
@@ -59,8 +59,8 @@ namespace Resilient.Net
                 return task.IsCompleted || task.Wait((int)timeout.TotalMilliseconds, token.Token);
             }
             catch(AggregateException exc)
-            {
-                throw exc.InnerException;
+            {            
+                throw exc.GetBaseException();
             }
         }
     }

@@ -132,7 +132,7 @@ namespace Resilient.Net.Tests
             {
                 ErrorThreshold = 2,
                 SuccessThreshold = 1,
-                InvocationTimeout = TimeSpan.FromMilliseconds(100),
+                InvocationTimeout = TimeSpan.FromMilliseconds(250),
                 ResetTimeout = TimeSpan.FromMilliseconds(200)
             };
 
@@ -153,7 +153,7 @@ namespace Resilient.Net.Tests
             [Fact]
             public void OccursWhenTimeoutsPassTheThreshold()
             {
-                _breaker.Function = () => { Thread.Sleep(200); return "Some String"; };
+                _breaker.Function = () => { Thread.Sleep(300); return "Some String"; };
 
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _breaker.Execute());
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _breaker.Execute());
@@ -164,7 +164,7 @@ namespace Resilient.Net.Tests
             public void ExceptionsAndTimeoutsCountTowardsThreshold()
             {
                 Assert.Throws<NotImplementedException>(() => _breaker.Execute());
-                _breaker.Function = () => { Thread.Sleep(200); return "Some String"; };
+                _breaker.Function = () => { Thread.Sleep(300); return "Some String"; };
 
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _breaker.Execute());
                 Assert.True(_breaker.IsOpen);
@@ -184,7 +184,7 @@ namespace Resilient.Net.Tests
             {
                 ErrorThreshold = 2,
                 SuccessThreshold = 1,
-                InvocationTimeout = TimeSpan.FromMilliseconds(50),
+                InvocationTimeout = TimeSpan.FromMilliseconds(250),
                 ResetTimeout = TimeSpan.FromMilliseconds(20)
             };
 

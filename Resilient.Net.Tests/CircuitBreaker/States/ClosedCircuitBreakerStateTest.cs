@@ -37,24 +37,25 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class BecomeActive
+        public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-            private readonly ClosedCircuitBreakerState _state;
                         
             public BecomeActive()
             {
                 _state = new ClosedCircuitBreakerState(Substitute.For<CircuitBreakerSwitch>(), _invoker, 2, TimeSpan.FromMilliseconds(10));
             }
-
+            
             [Fact]
             public void ResetsFailureCount()
             {
-                _state.ExecutionFailed();
-                Assert.Equal(1, _state.Failures);
+                var state = _state as ClosedCircuitBreakerState;
 
-                _state.BecomeActive();
-                Assert.Equal(0, _state.Failures);
+                state.ExecutionFailed();
+                Assert.Equal(1, state.Failures);
+
+                state.BecomeActive();
+                Assert.Equal(0, state.Failures);
             }
         }
 
@@ -67,17 +68,17 @@ namespace Resilient.Net.Tests
                 var invoker = Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default);
                 var timeout = TimeSpan.FromMilliseconds(10);
 
-                var state = new ClosedCircuitBreakerState(breakerSwitch, invoker, 1, timeout);
-                state.Invoke(() => "whatever");
+                using (var state = new ClosedCircuitBreakerState(breakerSwitch, invoker, 1, timeout))
+                {
+                    state.Invoke(() => "whatever");
 
-                invoker.Received().Invoke(state, Arg.Any<Func<string>>(), timeout);
+                    invoker.Received().Invoke(state, Arg.Any<Func<string>>(), timeout);
+                }
             }
         }
 
-        public class ExecutionSucceeded
+        public class ExecutionSucceeded : CircuitBreakerStateTest<CircuitBreakerState>
         {            
-            private readonly ClosedCircuitBreakerState _state;
-
             public ExecutionSucceeded()
             {
                 var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
@@ -87,20 +88,21 @@ namespace Resilient.Net.Tests
             [Fact]
             public void ResetsFailureCount()
             {
-                _state.ExecutionFailed();
-                Assert.Equal(1, _state.Failures);
+                var state = _state as ClosedCircuitBreakerState;
 
-                _state.ExecutionSucceeded();
-                Assert.Equal(0, _state.Failures);
+                state.ExecutionFailed();
+                Assert.Equal(1, state.Failures);
+
+                state.ExecutionSucceeded();
+                Assert.Equal(0, state.Failures);
             }
         }
 
-        public class ExecutionFailed
+        public class ExecutionFailed : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private CircuitBreakerSwitch _breakerSwitch = Substitute.For<CircuitBreakerSwitch>();
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-            private readonly ClosedCircuitBreakerState _state;
-
+            
             public ExecutionFailed()
             {
                 _state = new ClosedCircuitBreakerState(_breakerSwitch, _invoker, 2, TimeSpan.FromMilliseconds(10));

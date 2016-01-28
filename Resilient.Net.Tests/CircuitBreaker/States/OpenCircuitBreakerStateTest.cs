@@ -31,23 +31,23 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class BecomeActive
+        public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
         {            
-            private readonly OpenCircuitBreakerState _state;
-
             public BecomeActive()
             {
                 var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
                 _state = new OpenCircuitBreakerState(Substitute.For<CircuitBreakerSwitch>(), invoker, TimeSpan.FromMilliseconds(10));
             }
-
+            
             [Fact]
             public void SchedulesTransitionAfterTimeout()
             {
-                Assert.False(_state.Scheduled);
+                var state = _state as OpenCircuitBreakerState;
 
-                _state.BecomeActive();
-                Assert.True(_state.Scheduled);
+                Assert.False(state.Scheduled);
+
+                state.BecomeActive();
+                Assert.True(state.Scheduled);
             }
         }
                 

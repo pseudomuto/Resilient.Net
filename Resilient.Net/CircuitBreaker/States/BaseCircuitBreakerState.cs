@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
-    internal abstract class BaseCircuitBreakerState : CircuitBreakerState
+    internal abstract class BaseCircuitBreakerState : CircuitBreakerState, IDisposable
     {
         public CircuitBreakerSwitch Switch { get; private set; }
 
@@ -22,5 +22,15 @@ namespace Resilient.Net
         public abstract void BecomeActive();
         public abstract void ExecutionSucceeded();
         public abstract void ExecutionFailed();
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+        }
     }
 }

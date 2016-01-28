@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
+    [Serializable]
     public class CircuitBreakerTimeoutException : Exception
     {
     }

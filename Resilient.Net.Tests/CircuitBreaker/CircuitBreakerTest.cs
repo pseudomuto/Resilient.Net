@@ -7,7 +7,7 @@ namespace Resilient.Net.Tests
 {
     public class CircuitBreakerTest
     {
-        class DummyBreaker : CircuitBreaker<string>
+        public class DummyBreaker : CircuitBreaker<string>
         {
             public Func<string> Function { get; set; }
 
@@ -35,10 +35,32 @@ namespace Resilient.Net.Tests
                 return "Dummy String";
             }
         }
-       
-        public class IsState
+
+        public abstract class BreakerTest : IDisposable
         {
-            private readonly DummyBreaker _breaker = new DummyBreaker();
+            protected DummyBreaker _breaker;
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    _breaker.Dispose();
+                }
+            }
+        }
+
+        public class IsState : BreakerTest
+        {            
+            public IsState()
+            {
+                _breaker = new DummyBreaker();
+            }
 
             [Fact]
             public void IsClosed()
@@ -69,9 +91,12 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Execute
+        public class Execute : BreakerTest
         {
-            private readonly DummyBreaker _breaker = new DummyBreaker();
+            public Execute()
+            {
+                _breaker = new DummyBreaker();
+            }
 
             [Fact]
             public void ReturnsTheResultWhenTheCircuitIsClosed()
@@ -101,7 +126,7 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Trip
+        public class Trip : BreakerTest
         {
             private static readonly CircuitBreakerOptions options = new CircuitBreakerOptions
             {
@@ -111,10 +136,9 @@ namespace Resilient.Net.Tests
                 ResetTimeout = TimeSpan.FromMilliseconds(200)
             };
 
-            private readonly DummyBreaker _breaker = new DummyBreaker(TaskScheduler.Default, options);
-            
             public Trip()
             {
+                _breaker = new DummyBreaker(TaskScheduler.Default, options);
                 _breaker.Function = () => { throw new NotImplementedException(); };
             }
 
@@ -154,7 +178,7 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Try
+        public class Try : BreakerTest
         {
             private static readonly CircuitBreakerOptions options = new CircuitBreakerOptions
             {
@@ -164,7 +188,10 @@ namespace Resilient.Net.Tests
                 ResetTimeout = TimeSpan.FromMilliseconds(20)
             };
 
-            private readonly DummyBreaker _breaker = new DummyBreaker(TaskScheduler.Default, options);
+            public Try()
+            {
+                _breaker = new DummyBreaker(TaskScheduler.Default, options);
+            }
 
             [Fact]
             public void OccursAfterResetTimeoutWindowLapses()
@@ -180,7 +207,7 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Reset
+        public class Reset : BreakerTest
         {
             private static readonly CircuitBreakerOptions options = new CircuitBreakerOptions
             {
@@ -189,11 +216,10 @@ namespace Resilient.Net.Tests
                 InvocationTimeout = TimeSpan.FromMilliseconds(50),
                 ResetTimeout = TimeSpan.FromMilliseconds(20)
             };
-
-            private readonly DummyBreaker _breaker = new DummyBreaker(TaskScheduler.Default, options);
             
             public Reset()
             {
+                _breaker = new DummyBreaker(TaskScheduler.Default, options);
                 _breaker.Try(_breaker.CurrentState);               
             }
 

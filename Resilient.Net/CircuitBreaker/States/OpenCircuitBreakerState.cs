@@ -31,6 +31,11 @@ namespace Resilient.Net
 
         public override void BecomeActive()
         {
+            if (_timer != null)
+            {
+                _timer.Dispose();
+            }
+
             _timer = new Timer(_ => HalfOpen(), null, (int)_resetTimeout.TotalMilliseconds, Timeout.Infinite);
             Scheduled = true;
         }
@@ -40,5 +45,15 @@ namespace Resilient.Net
             Switch.Try(this);            
             Scheduled = false;
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _timer != null)
+            {
+                _timer.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }        
     }
 }

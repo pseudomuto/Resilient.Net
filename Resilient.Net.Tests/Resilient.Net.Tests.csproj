@@ -69,6 +69,7 @@
     <Compile Include="CircuitBreaker\States\ClosedCircuitBreakerStateTest.cs" />
     <Compile Include="CircuitBreaker\States\HalfOpenCircuitBreakerStateTest.cs" />
     <Compile Include="CircuitBreaker\States\OpenCircuitBreakerStateTest.cs" />
+    <Compile Include="CircuitBreaker\Support\CircuitBreakerStateTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -37,12 +37,11 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Invoke
+        public class Invoke : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(10);
             private readonly CircuitBreakerInvoker _mockInvoker = Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default);
-            private readonly HalfOpenCircuitBreakerState _state;
-
+            
             public Invoke()
             {
                 _state = new HalfOpenCircuitBreakerState(Substitute.For<CircuitBreakerSwitch>(), _mockInvoker, 1, _timeout);
@@ -63,11 +62,10 @@ namespace Resilient.Net.Tests
             }
         }
                 
-        public class ExecutionSucceeded
+        public class ExecutionSucceeded : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private readonly CircuitBreakerSwitch _breakerSwitch = Substitute.For<CircuitBreakerSwitch>();
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-            private readonly HalfOpenCircuitBreakerState _state;
             
             public ExecutionSucceeded()
             {
@@ -92,11 +90,10 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class ExecutionFailed
+        public class ExecutionFailed : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private readonly CircuitBreakerSwitch _breakerSwitch = Substitute.For<CircuitBreakerSwitch>();
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-            private readonly HalfOpenCircuitBreakerState _state;
             
             public ExecutionFailed()
             {

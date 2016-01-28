@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Resilient.Net.Test")]
+[assembly: AssemblyTitle("Resilient.Net.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Resilient.Net.Test")]
+[assembly: AssemblyProduct("Resilient.Net.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0689e6b2-db8c-4c12-86fb-72a202823f19")]
+[assembly: Guid("73542d63-0a50-44b4-aafe-5da4765670d6")]
 
 // Version information for an assembly consists of the following four values:
 //

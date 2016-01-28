@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
-    public abstract class CircuitBreaker<T> : CircuitBreakerSwitch
+    public abstract class CircuitBreaker<T> : CircuitBreakerSwitch, IDisposable
     {
         private readonly ClosedCircuitBreakerState _closedState;
         private readonly OpenCircuitBreakerState _openState;
@@ -74,5 +74,21 @@ namespace Resilient.Net
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _closedState.Dispose();
+                _openState.Dispose();
+                _halfOpenState.Dispose();
+            }
+        }
     }
 }

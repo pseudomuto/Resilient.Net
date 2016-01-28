@@ -5,12 +5,15 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resilient.Net", "Resilient.Net\Resilient.Net.csproj", "{87A1D253-0CF4-4EC4-9EBD-E55F60E59F72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resilient.Net.Test", "Resilient.Net.Test\Resilient.Net.Test.csproj", "{0689E6B2-DB8C-4C12-86FB-72A202823F19}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B7F05CB-69BA-4E53-A531-C9B3869F2A3A}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.travis.yml = .travis.yml
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resilient.Net.Tests", "Resilient.Net.Tests\Resilient.Net.Tests.csproj", "{73542D63-0A50-44B4-AAFE-5DA4765670D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +25,10 @@ Global
 		{87A1D253-0CF4-4EC4-9EBD-E55F60E59F72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87A1D253-0CF4-4EC4-9EBD-E55F60E59F72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87A1D253-0CF4-4EC4-9EBD-E55F60E59F72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0689E6B2-DB8C-4C12-86FB-72A202823F19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0689E6B2-DB8C-4C12-86FB-72A202823F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0689E6B2-DB8C-4C12-86FB-72A202823F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0689E6B2-DB8C-4C12-86FB-72A202823F19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73542D63-0A50-44B4-AAFE-5DA4765670D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73542D63-0A50-44B4-AAFE-5DA4765670D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73542D63-0A50-44B4-AAFE-5DA4765670D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73542D63-0A50-44B4-AAFE-5DA4765670D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

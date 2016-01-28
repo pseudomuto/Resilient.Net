@@ -36,31 +36,41 @@ namespace Resilient.Net
 
         private T Invoke<T>(Func<T> function, TimeSpan timeout)
         {
-            function.EnsureNotNull("function");
-
-            using (var token = new CancellationTokenSource())
+            using (var token = new CancellationTokenSource(timeout))
             {
-                var task = Task<T>.Factory.StartNew(function, token.Token, TaskCreationOptions.None, _scheduler);
-
-                if (TaskCompleted(task, timeout, token))
+                try
                 {
+                    var task = Task<T>.Factory.StartNew(function, token.Token, TaskCreationOptions.None, _scheduler);
+
+                    if (!TaskCompleted(task, timeout, token.Token))
+                    {
+                        throw new CircuitBreakerTimeoutException();
+                    }
+
                     return task.Result;
                 }
-
-                token.Cancel();
-                throw new CircuitBreakerTimeoutException();
+                catch (OperationCanceledException)
+                {                    
+                    throw new CircuitBreakerTimeoutException();
+                }
             }
         }
 
-        private static bool TaskCompleted<T>(Task<T> task, TimeSpan timeout, CancellationTokenSource token)
+        private static bool TaskCompleted<T>(Task<T> task, TimeSpan timeout, CancellationToken token)
         {
             try
             {
-                return task.IsCompleted || task.Wait((int)timeout.TotalMilliseconds, token.Token);
+                if (task.IsCompleted)
+                {
+                    return true;
+                }
+
+                task.Wait(token);
+                return true;
             }
             catch(AggregateException exc)
             {
-                throw exc.InnerException;
+                throw exc.GetBaseException();
             }
         }
     }

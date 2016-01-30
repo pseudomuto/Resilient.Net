@@ -10,7 +10,7 @@ namespace Resilient.Net
 	/// <summary>
 	/// A base class for CircuitBreakers
 	/// </summary>
-	public abstract class CircuitBreaker<T> : CircuitBreakerSwitch, IDisposable
+	public class CircuitBreaker : CircuitBreakerSwitch, IDisposable
 	{
 		private readonly ClosedCircuitBreakerState _closedState;
 		private readonly OpenCircuitBreakerState _openState;
@@ -38,30 +38,30 @@ namespace Resilient.Net
 		public bool IsHalfOpen { get { return _currentState == _halfOpenState; } }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker`1"/> class using the default 
+		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker"/> class using the default 
 		/// <see cref="TaskScheduler"/> and <see cref="Resilient.Net.CircuitBreakerOptions"/>.
 		/// </summary>
-		protected CircuitBreaker()
+		public CircuitBreaker()
 			: this(TaskScheduler.Default)
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker`1"/> class using the specified
+		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker"/> class using the specified
 		/// <see cref="TaskScheduler"/> and default <see cref="Resilient.Net.CircuitBreakerOptions"/>.
 		/// </summary>
 		/// <param name="scheduler">The <see cref="TaskScheduler"/> to use for execution.</param>
-		protected CircuitBreaker(TaskScheduler scheduler)
+		public CircuitBreaker(TaskScheduler scheduler)
 			: this(scheduler, new CircuitBreakerOptions())
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker`1"/> class.
+		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker"/> class.
 		/// </summary>
 		/// <param name="scheduler">The <see cref="TaskScheduler"/> to use for execution.</param>
 		/// <param name="options">The <see cref="Resilient.Net.CircuitBreakerOptions"/> to use</param>
-		protected CircuitBreaker(TaskScheduler scheduler, CircuitBreakerOptions options)
+		public CircuitBreaker(TaskScheduler scheduler, CircuitBreakerOptions options)
 		{            
 			var invoker = new CircuitBreakerInvoker(scheduler);
 
@@ -73,18 +73,14 @@ namespace Resilient.Net
 		}
 
 		/// <summary>
-		/// Execute the operation
+		/// Execute the specified function.
 		/// </summary>
-		public T Execute()
+		/// <param name="function">The function to execute if the circuit is not open.</param>
+		/// <typeparam name="T">The return type of the function.</typeparam>
+		public T Execute<T>(Func<T> function)
 		{
-			return CurrentState.Invoke(this.Perform);
+			return CurrentState.Invoke(function);
 		}
-
-		/// <summary>
-		/// Perform the operation protected by this breaker. This method should not be called directly. It will be 
-		/// invoked when the breaker is either closed or half-open.
-		/// </summary>
-		protected abstract T Perform();
 
 		#region [CircuitBreakerSwitch Implementation]
 
@@ -128,12 +124,12 @@ namespace Resilient.Net
 		#region [IDisposable Implementation]
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="Resilient.Net.CircuitBreaker`1"/> object.
+		/// Releases all resource used by the <see cref="Resilient.Net.CircuitBreaker"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="Resilient.Net.CircuitBreaker`1"/>. The
-		/// <see cref="Dispose"/> method leaves the <see cref="Resilient.Net.CircuitBreaker`1"/> in an unusable state. After
-		/// calling <see cref="Dispose"/>, you must release all references to the <see cref="Resilient.Net.CircuitBreaker`1"/>
-		/// so the garbage collector can reclaim the memory that the <see cref="Resilient.Net.CircuitBreaker`1"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="Resilient.Net.CircuitBreaker"/>. The
+		/// <see cref="Dispose"/> method leaves the <see cref="Resilient.Net.CircuitBreaker"/> in an unusable state. After
+		/// calling <see cref="Dispose"/>, you must release all references to the <see cref="Resilient.Net.CircuitBreaker"/>
+		/// so the garbage collector can reclaim the memory that the <see cref="Resilient.Net.CircuitBreaker"/> was occupying.</remarks>
 		public void Dispose()
 		{
 			Dispose(true);

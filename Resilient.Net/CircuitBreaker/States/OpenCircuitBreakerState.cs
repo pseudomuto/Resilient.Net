@@ -10,7 +10,7 @@ namespace Resilient.Net
 
         public bool Scheduled { get; private set; }
 
-        public OpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, TimeSpan resetTimeout) 
+        public OpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, TimeSpan resetTimeout)
             : base(breakerSwitch, invoker)
         {
             _resetTimeout = resetTimeout.PositiveOrThrow("resetTimeout");
@@ -54,6 +54,6 @@ namespace Resilient.Net
             }
 
             base.Dispose(disposing);
-        }        
+        }
     }
 }

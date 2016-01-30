@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +22,7 @@ namespace Resilient.Net
                 result = Invoke(function, timeout);
                 state.ExecutionSucceeded();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 state.ExecutionFailed();
                 throw;
@@ -68,7 +65,7 @@ namespace Resilient.Net
                 task.Wait(token);
                 return true;
             }
-            catch(AggregateException exc)
+            catch (AggregateException exc)
             {
                 throw exc.GetBaseException();
             }

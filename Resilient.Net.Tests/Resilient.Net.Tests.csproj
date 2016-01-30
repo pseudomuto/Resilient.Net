@@ -71,6 +71,7 @@
     <Compile Include="CircuitBreaker\States\OpenCircuitBreakerStateTest.cs" />
     <Compile Include="CircuitBreaker\Support\CircuitBreakerStateTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CircuitBreaker\CircuitBreakerOptionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

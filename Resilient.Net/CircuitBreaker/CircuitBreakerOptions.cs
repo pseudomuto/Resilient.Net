@@ -1,24 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
-    public struct CircuitBreakerOptions
-    {
-        public static readonly CircuitBreakerOptions Default = new CircuitBreakerOptions
-        {
-            ErrorThreshold = 2,
-            SuccessThreshold = 2,
-            InvocationTimeout = TimeSpan.FromMilliseconds(1000),
-            ResetTimeout = TimeSpan.FromMilliseconds(10000)
-        };
+	/// <summary>
+	/// A class representing options for <see cref="Resilient.Net.CircuitBreaker`1"/>
+	/// </summary>
+	public class CircuitBreakerOptions
+	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreakerOptions"/> class.
+		/// </summary>
+		public CircuitBreakerOptions()
+		{
+			ErrorThreshold = 2;
+			SuccessThreshold = 2;
+			InvocationTimeout = TimeSpan.FromSeconds(1);
+			ResetTimeout = TimeSpan.FromSeconds(10);
+		}
 
-        public int ErrorThreshold { get; set; }
-        public int SuccessThreshold { get; set; }
-        public TimeSpan InvocationTimeout { get; set; }
-        public TimeSpan ResetTimeout { get; set; }
-    }
+		/// <summary>
+		/// The number of errors to receive before the breaker is tripped.
+		/// </summary>		
+		public int ErrorThreshold { get; set; }
+
+		/// <summary>
+		/// The number of successful calls in a half-open state required to close the circuit.
+		/// </summary>
+		public int SuccessThreshold { get; set; }
+
+		/// <summary>
+		/// The amount of time to wait for the call to succeed before timing out.
+		/// </summary>
+		public TimeSpan InvocationTimeout { get; set; }
+
+		/// <summary>
+		/// The amount of time to wait when the circuit is open before transitioning to half-open.
+		/// </summary>
+		public TimeSpan ResetTimeout { get; set; }
+	}
 }

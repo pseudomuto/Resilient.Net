@@ -50,6 +50,16 @@ namespace Resilient.Net
                 {                    
                     throw new CircuitBreakerTimeoutException();
                 }
+                catch (AggregateException exc)
+                {
+                    var baseException = exc.GetBaseException();
+                    if (baseException is OperationCanceledException)
+                    {
+                        throw new CircuitBreakerTimeoutException();
+                    }
+
+                    throw baseException;
+                }
             }
         }
 

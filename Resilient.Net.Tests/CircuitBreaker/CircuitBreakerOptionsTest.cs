@@ -33,6 +33,18 @@ namespace Resilient.Net.Tests
                 Assert.Equal(TimeSpan.FromSeconds(10), _options.ResetTimeout);
             }
         }
+
+        public class ToStringOverride
+        {
+            private readonly CircuitBreakerOptions _options = new CircuitBreakerOptions();
+
+            [Fact]
+            public void IncludesOptionDetails()
+            {
+                var expected = "ErrorThreshold=2 SuccessThreshold=2 InvocationTimeout=1000 ResetTimeout=10000";
+                Assert.Equal(expected, _options.ToString());
+            }
+        }
     }
 }
 

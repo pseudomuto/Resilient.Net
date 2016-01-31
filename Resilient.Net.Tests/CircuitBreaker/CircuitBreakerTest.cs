@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -72,6 +73,35 @@ namespace Resilient.Net.Tests
             }
         }
 
+        public class Logging : BreakerTest
+        {
+            private readonly TestTraceListener _traceLog = new TestTraceListener();
+
+            public Logging()
+            {
+                _breaker = new CircuitBreaker();
+                Trace.Listeners.Add(_traceLog);
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+                Trace.Listeners.Remove(_traceLog);
+            }
+
+            [Fact]
+            public void LogsRelevantInformationDuringATransition()
+            {
+                _breaker.Force(CircuitBreakerStateType.Open);
+
+                var logLine = _traceLog.LastLine;
+
+                Assert.Contains("[CircuitBreaker] state transition from Closed to Open", logLine);
+                Assert.Contains("ErrorThreshold=2 SuccessThreshold=2", logLine);
+                Assert.Contains("InvocationTimeout=1000 ResetTimeout=10000", logLine);
+            }
+        }
+
         public class Execute : BreakerTest
         {
             private readonly Func<string> _function = () => "Dummy String";
@@ -92,10 +122,10 @@ namespace Resilient.Net.Tests
 
             [Fact]
             public void ReturnsTheResultWhenTheCircuitIsHalfOpen()
-            {                
+            {
                 _breaker.Force(CircuitBreakerStateType.HalfOpen);
 
-                Assert.True(_breaker.IsHalfOpen);                
+                Assert.True(_breaker.IsHalfOpen);
                 Assert.Equal("Dummy String", _breaker.Execute(_function));
             }
 
@@ -135,7 +165,7 @@ namespace Resilient.Net.Tests
 
             [Fact]
             public void OccursWhenTimeoutsPassTheThreshold()
-            {				
+            {
                 Func<string> fn = () =>
                 {
                     Thread.Sleep(delay);
@@ -209,7 +239,7 @@ namespace Resilient.Net.Tests
             public Reset()
             {
                 _breaker = new CircuitBreaker(TaskScheduler.Default, options);
-                _breaker.Force(CircuitBreakerStateType.HalfOpen);               
+                _breaker.Force(CircuitBreakerStateType.HalfOpen);
             }
 
             [Fact]
@@ -217,7 +247,7 @@ namespace Resilient.Net.Tests
             {
                 Assert.True(_breaker.IsHalfOpen);
 
-                _breaker.Execute(() => "");                
+                _breaker.Execute(() => "");
                 _breaker.Execute(() => "");
 
                 Assert.True(_breaker.IsClosed);

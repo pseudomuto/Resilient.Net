@@ -24,6 +24,11 @@ namespace Resilient.Net
 
         public abstract void ExecutionFailed();
 
+        public override string ToString()
+        {
+            return GetType().FullName;
+        }
+
         public void Dispose()
         {
             Dispose(true);

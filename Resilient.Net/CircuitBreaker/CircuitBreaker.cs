@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ namespace Resilient.Net
         public bool IsHalfOpen { get { return _currentState == GetStateForType(CircuitBreakerStateType.HalfOpen); } }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker"/> class using the default 
+        /// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreaker"/> class using the default
         /// <see cref="TaskScheduler"/> and <see cref="Resilient.Net.CircuitBreakerOptions"/>.
         /// </summary>
         public CircuitBreaker()
@@ -59,7 +60,7 @@ namespace Resilient.Net
         /// <param name="scheduler">The <see cref="TaskScheduler"/> to use for execution.</param>
         /// <param name="options">The <see cref="Resilient.Net.CircuitBreakerOptions"/> to use</param>
         public CircuitBreaker(TaskScheduler scheduler, CircuitBreakerOptions options)
-        {            
+        {
             _invoker = new CircuitBreakerInvoker(scheduler);
             _options = options;
 
@@ -80,15 +81,6 @@ namespace Resilient.Net
         public T Execute<T>(Func<T> function)
         {
             return _currentState.Invoke(function);
-        }
-
-        /// <summary>
-        /// Force the circuit breaker into the specified state.
-        /// </summary>
-        /// <param name="toState">The state to transition to.</param>
-        public void Force(CircuitBreakerStateType toState)
-        {
-            Transition(_currentState, GetStateForType(toState));
         }
 
         #region [CircuitBreakerSwitch Implementation]
@@ -120,12 +112,33 @@ namespace Resilient.Net
             Transition(fromState, GetStateForType(CircuitBreakerStateType.HalfOpen));
         }
 
+        /// <summary>
+        /// Force the circuit breaker into the specified state.
+        /// </summary>
+        /// <param name="toState">The state to transition to.</param>
+        public void Force(CircuitBreakerStateType toState)
+        {
+            Transition(_currentState, GetStateForType(toState));
+        }
+
         private void Transition(CircuitBreakerState fromState, CircuitBreakerState toState)
         {
             if (Interlocked.CompareExchange(ref _currentState, toState, fromState) == fromState)
             {
+                LogTransition(fromState, toState);
                 toState.BecomeActive();
             }
+        }
+
+        private void LogTransition(CircuitBreakerState fromState, CircuitBreakerState toState)
+        {
+            Trace.TraceInformation(
+                "[{0}] state transition from {1} to {2}. {3}",
+                GetType().Name,
+                fromState.Type,
+                toState.Type,
+                _options
+            );
         }
 
         #endregion
@@ -178,17 +191,17 @@ namespace Resilient.Net
                     break;
                 case CircuitBreakerStateType.HalfOpen:
                     state = new HalfOpenCircuitBreakerState(
-                        this, 
-                        _invoker, 
-                        options.SuccessThreshold, 
+                        this,
+                        _invoker,
+                        options.SuccessThreshold,
                         options.InvocationTimeout
                     );
                     break;
                 default:
                     state = new ClosedCircuitBreakerState(
-                        this, 
-                        _invoker, 
-                        options.ErrorThreshold, 
+                        this,
+                        _invoker,
+                        options.ErrorThreshold,
                         options.InvocationTimeout
                     );
                     break;

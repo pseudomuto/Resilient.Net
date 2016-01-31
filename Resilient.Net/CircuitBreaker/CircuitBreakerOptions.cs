@@ -7,6 +7,14 @@ namespace Resilient.Net
     /// </summary>
     public class CircuitBreakerOptions
     {
+        private static readonly string LogFormat = string.Join(
+                                                       " ",
+                                                       "ErrorThreshold={0}",
+                                                       "SuccessThreshold={1}",
+                                                       "InvocationTimeout={2}",
+                                                       "ResetTimeout={3}"
+                                                   );
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreakerOptions"/> class.
         /// </summary>
@@ -37,5 +45,21 @@ namespace Resilient.Net
         /// The amount of time to wait when the circuit is open before transitioning to half-open.
         /// </summary>
         public TimeSpan ResetTimeout { get; set; }
+
+        /// <summary>
+        /// Returns a <see cref="System.String"/> that represents the current <see cref="Resilient.Net.CircuitBreakerOptions"/>.
+        /// </summary>
+        /// <remarks>This is intended for logging purposes</remarks>
+        /// <returns>A <see cref="System.String"/> that represents the current <see cref="Resilient.Net.CircuitBreakerOptions"/>.</returns>
+        public override string ToString()
+        {
+            return string.Format(
+                LogFormat,
+                ErrorThreshold,
+                SuccessThreshold,
+                InvocationTimeout.TotalMilliseconds,
+                ResetTimeout.TotalMilliseconds
+            );
+        }
     }
 }

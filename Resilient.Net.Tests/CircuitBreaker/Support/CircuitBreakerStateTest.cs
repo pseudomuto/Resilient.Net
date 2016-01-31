@@ -2,9 +2,14 @@
 
 namespace Resilient.Net.Tests
 {
-    public abstract class CircuitBreakerStateTest<T> : IDisposable where T : CircuitBreakerState
+    public abstract class CircuitBreakerStateTest : IDisposable
     {
-        protected T _state;
+        protected CircuitBreakerState State { get; set; }
+
+        public T As<T>() where T : class, CircuitBreakerState
+        {
+            return State as T;
+        }
 
         public void Dispose()
         {
@@ -16,7 +21,7 @@ namespace Resilient.Net.Tests
         {
             if (disposing)
             {
-                var disposable = _state as IDisposable;
+                var disposable = State as IDisposable;
 
                 if (disposable != null)
                 {

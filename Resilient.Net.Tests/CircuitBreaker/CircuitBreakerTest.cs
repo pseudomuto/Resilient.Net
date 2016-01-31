@@ -8,18 +8,13 @@ namespace Resilient.Net.Tests
 {
     public static class CircuitBreakerTest
     {
-        private static readonly Func<string> NotImplemented = () =>
-        {
-            throw new NotImplementedException();
-        };
-
         public abstract class BreakerTest : IDisposable
         {
-            protected CircuitBreaker _breaker;
+            protected CircuitBreaker Breaker { get; set; }
 
             public Action Call<T>(Func<T> method)
             {
-                return () => _breaker.Execute(method);
+                return () => Breaker.Execute(method);
             }
 
             public void Dispose()
@@ -32,7 +27,7 @@ namespace Resilient.Net.Tests
             {
                 if (disposing)
                 {
-                    _breaker.Dispose();
+                    Breaker.Dispose();
                 }
             }
         }
@@ -41,35 +36,35 @@ namespace Resilient.Net.Tests
         {
             public IsState()
             {
-                _breaker = new CircuitBreaker();
+                Breaker = new CircuitBreaker();
             }
 
             [Fact]
             public void IsClosed()
             {
-                Assert.True(_breaker.IsClosed);
-                Assert.False(_breaker.IsOpen);
-                Assert.False(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsClosed);
+                Assert.False(Breaker.IsOpen);
+                Assert.False(Breaker.IsHalfOpen);
             }
 
             [Fact]
             public void IsOpen()
             {
-                _breaker.Force(CircuitBreakerStateType.Open);
+                Breaker.Force(CircuitBreakerStateType.Open);
 
-                Assert.True(_breaker.IsOpen);
-                Assert.False(_breaker.IsClosed);
-                Assert.False(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsOpen);
+                Assert.False(Breaker.IsClosed);
+                Assert.False(Breaker.IsHalfOpen);
             }
 
             [Fact]
             public void IsHalfOpen()
             {
-                _breaker.Force(CircuitBreakerStateType.HalfOpen);
+                Breaker.Force(CircuitBreakerStateType.HalfOpen);
 
-                Assert.True(_breaker.IsHalfOpen);
-                Assert.False(_breaker.IsClosed);
-                Assert.False(_breaker.IsOpen);
+                Assert.True(Breaker.IsHalfOpen);
+                Assert.False(Breaker.IsClosed);
+                Assert.False(Breaker.IsOpen);
             }
         }
 
@@ -79,7 +74,7 @@ namespace Resilient.Net.Tests
 
             public Logging()
             {
-                _breaker = new CircuitBreaker();
+                Breaker = new CircuitBreaker();
                 Trace.Listeners.Add(_traceLog);
             }
 
@@ -92,7 +87,7 @@ namespace Resilient.Net.Tests
             [Fact]
             public void LogsRelevantInformationDuringATransition()
             {
-                _breaker.Force(CircuitBreakerStateType.Open);
+                Breaker.Force(CircuitBreakerStateType.Open);
 
                 var logLine = _traceLog.LastLine;
 
@@ -108,32 +103,32 @@ namespace Resilient.Net.Tests
 
             public Execute()
             {
-                _breaker = new CircuitBreaker();
+                Breaker = new CircuitBreaker();
             }
 
             [Fact]
             public void ReturnsTheResultWhenTheCircuitIsClosed()
             {
-                Assert.True(_breaker.IsClosed);
+                Assert.True(Breaker.IsClosed);
 
-                var result = _breaker.Execute(_function);
+                var result = Breaker.Execute(_function);
                 Assert.Equal("Dummy String", result);
             }
 
             [Fact]
             public void ReturnsTheResultWhenTheCircuitIsHalfOpen()
             {
-                _breaker.Force(CircuitBreakerStateType.HalfOpen);
+                Breaker.Force(CircuitBreakerStateType.HalfOpen);
 
-                Assert.True(_breaker.IsHalfOpen);
-                Assert.Equal("Dummy String", _breaker.Execute(_function));
+                Assert.True(Breaker.IsHalfOpen);
+                Assert.Equal("Dummy String", Breaker.Execute(_function));
             }
 
             [Fact]
             public void ThrowsWhenTheCircuitIsOpen()
             {
-                _breaker.Force(CircuitBreakerStateType.Open);
-                Assert.True(_breaker.IsOpen);
+                Breaker.Force(CircuitBreakerStateType.Open);
+                Assert.True(Breaker.IsOpen);
 
                 Assert.Throws<OpenCircuitBreakerException>(Call(_function));
             }
@@ -141,64 +136,56 @@ namespace Resilient.Net.Tests
 
         public class Trip : BreakerTest
         {
-            private static readonly int delay = 300;
+            private static readonly int s_delay = 300;
 
             private static readonly CircuitBreakerOptions options = new CircuitBreakerOptions {
                 ErrorThreshold = 2,
                 SuccessThreshold = 1,
-                InvocationTimeout = TimeSpan.FromMilliseconds(delay - 100),
+                InvocationTimeout = TimeSpan.FromMilliseconds(s_delay - 100),
                 ResetTimeout = TimeSpan.FromMilliseconds(200)
             };
 
             public Trip()
             {
-                _breaker = new CircuitBreaker(TaskScheduler.Default, options);
+                Breaker = new CircuitBreaker(TaskScheduler.Default, options);
             }
 
             [Fact]
             public void OccursWhenErrorThresholdIsReached()
             {
-                Assert.Throws<NotImplementedException>(Call(NotImplemented));
-                Assert.Throws<NotImplementedException>(Call(NotImplemented));
-                Assert.True(_breaker.IsOpen);
+                Assert.Throws<NotImplementedException>(Call(TestFunctions.NotImplemented));
+                Assert.Throws<NotImplementedException>(Call(TestFunctions.NotImplemented));
+                Assert.True(Breaker.IsOpen);
             }
 
             [Fact]
             public void OccursWhenTimeoutsPassTheThreshold()
             {
-                Func<string> fn = () =>
-                {
-                    Thread.Sleep(delay);
-                    return "Some String";
-                };
+                Func<string> fn = TestFunctions.Delay(s_delay, () => "Some String");
 
-                Assert.True(_breaker.IsClosed);
+                Assert.True(Breaker.IsClosed);
 
                 Assert.Throws<CircuitBreakerTimeoutException>(Call(fn));
                 Assert.Throws<CircuitBreakerTimeoutException>(Call(fn));
-                Assert.True(_breaker.IsOpen);
+                Assert.True(Breaker.IsOpen);
             }
 
             [Fact]
             public void ExceptionsAndTimeoutsCountTowardsThreshold()
             {
-                Assert.Throws<NotImplementedException>(Call(NotImplemented));
+                Assert.Throws<NotImplementedException>(Call(TestFunctions.NotImplemented));
 
-                Func<string> fn = () =>
-                {
-                    Thread.Sleep(delay);
-                    return "Some String";
-                };
+                Func<string> fn = TestFunctions.Delay(s_delay, () => "Some String");
 
                 Assert.Throws<CircuitBreakerTimeoutException>(Call(fn));
-                Assert.True(_breaker.IsOpen);
+                Assert.True(Breaker.IsOpen);
             }
 
             [Fact]
             public void OnlyTripsWhenTresholdReached()
             {
-                Assert.Throws<NotImplementedException>(Call(NotImplemented));
-                Assert.True(_breaker.IsClosed);
+                Assert.Throws<NotImplementedException>(Call(TestFunctions.NotImplemented));
+                Assert.True(Breaker.IsClosed);
             }
         }
 
@@ -213,17 +200,17 @@ namespace Resilient.Net.Tests
 
             public Try()
             {
-                _breaker = new CircuitBreaker(TaskScheduler.Default, options);
+                Breaker = new CircuitBreaker(TaskScheduler.Default, options);
             }
 
             [Fact]
             public void OccursAfterResetTimeoutWindowLapses()
             {
-                Assert.Throws<NotImplementedException>(Call(NotImplemented));
-                Assert.True(_breaker.IsOpen);
+                Assert.Throws<NotImplementedException>(Call(TestFunctions.NotImplemented));
+                Assert.True(Breaker.IsOpen);
 
                 Thread.Sleep(50); // longer than reset timeout
-                Assert.True(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsHalfOpen);
             }
         }
 
@@ -238,29 +225,29 @@ namespace Resilient.Net.Tests
 
             public Reset()
             {
-                _breaker = new CircuitBreaker(TaskScheduler.Default, options);
-                _breaker.Force(CircuitBreakerStateType.HalfOpen);
+                Breaker = new CircuitBreaker(TaskScheduler.Default, options);
+                Breaker.Force(CircuitBreakerStateType.HalfOpen);
             }
 
             [Fact]
             public void OccursAfterSuccessThresholdIsReached()
             {
-                Assert.True(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsHalfOpen);
 
-                _breaker.Execute(() => "");
-                _breaker.Execute(() => "");
+                Breaker.Execute(() => "");
+                Breaker.Execute(() => "");
 
-                Assert.True(_breaker.IsClosed);
+                Assert.True(Breaker.IsClosed);
             }
 
             [Fact]
             public void OnlyOccursAfterThresholdIsReached()
             {
-                Assert.True(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsHalfOpen);
 
-                _breaker.Execute(() => "");
+                Breaker.Execute(() => "");
 
-                Assert.True(_breaker.IsHalfOpen);
+                Assert.True(Breaker.IsHalfOpen);
             }
         }
     }

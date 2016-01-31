@@ -10,38 +10,60 @@ namespace Resilient.Net.Tests
         public class Constructor
         {
             private readonly CircuitBreakerSwitch _switch = Substitute.For<CircuitBreakerSwitch>();
-            private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
+            private readonly CircuitBreakerInvoker _invoker = Substitute.For<CircuitBreakerInvoker>(
+                                                                  TaskScheduler.Default
+                                                              );
 
             [Fact]
             public void ThrowsWhenSwitchIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new HalfOpenCircuitBreakerState(null, _invoker, 1, TimeSpan.MaxValue));
+                Assert.Throws<ArgumentNullException>(() => new HalfOpenCircuitBreakerState(
+                    null, 
+                    _invoker, 
+                    1, 
+                    TimeSpan.MaxValue
+                ));
             }
 
             [Fact]
             public void ThrowsWhenInvokerIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new HalfOpenCircuitBreakerState(_switch, null, 1, TimeSpan.MaxValue));
+                Assert.Throws<ArgumentNullException>(() => new HalfOpenCircuitBreakerState(
+                    _switch,
+                    null,
+                    1, 
+                    TimeSpan.MaxValue
+                ));
             }
 
             [Fact]
             public void ThrowsWhenSuccessThresholdIsNotPositive()
             {
-                Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(_switch, _invoker, 0, TimeSpan.MaxValue));
+                Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(
+                    _switch, 
+                    _invoker,
+                    0, 
+                    TimeSpan.MaxValue
+                ));
             }
 
             [Fact]
             public void ThrowsWhenTimeoutIsNotPositive()
             {
-                Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(_switch, _invoker, 1, TimeSpan.MinValue));
+                Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(
+                    _switch, 
+                    _invoker,
+                    1, 
+                    TimeSpan.MinValue
+                ));
             }
         }
 
-        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        public class Type : CircuitBreakerStateTest
         {
             public Type()
             {
-                _state = new HalfOpenCircuitBreakerState(
+                State = new HalfOpenCircuitBreakerState(
                     Substitute.For<CircuitBreakerSwitch>(),
                     Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
                     2,
@@ -52,79 +74,95 @@ namespace Resilient.Net.Tests
             [Fact]
             public void ReturnsHalfOpen()
             {
-                Assert.Equal(CircuitBreakerStateType.HalfOpen, (_state as HalfOpenCircuitBreakerState).Type);
+                Assert.Equal(CircuitBreakerStateType.HalfOpen, State.Type);
             }
         }
 
-        public class Invoke : CircuitBreakerStateTest<CircuitBreakerState>
+        public class Invoke : CircuitBreakerStateTest
         {
             private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(10);
-            private readonly CircuitBreakerInvoker _mockInvoker = Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default);
+
+            private readonly CircuitBreakerInvoker _invoker = Substitute.For<CircuitBreakerInvoker>(
+                                                                  TaskScheduler.Default
+                                                              );
 
             public Invoke()
             {
-                _state = new HalfOpenCircuitBreakerState(Substitute.For<CircuitBreakerSwitch>(), _mockInvoker, 1, _timeout);
+                State = new HalfOpenCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(), 
+                    _invoker,
+                    1, 
+                    _timeout
+                );
             }
 
             [Fact]
             public void InvokesTheFunction()
             {
-                _state.Invoke(() => "some value");
-                _mockInvoker.Received().Invoke(_state, Arg.Any<Func<string>>(), _timeout);
+                State.Invoke(() => "some value");
+                _invoker.Received().Invoke(State, Arg.Any<Func<string>>(), _timeout);
             }
 
             [Fact]
             public void OnlyAttemptsInvocationsOneAtATime()
             {
-                _state.Invoke(() => "");
-                Assert.Throws<OpenCircuitBreakerException>(() => _state.Invoke(() => ""));
+                State.Invoke(() => "");
+                Assert.Throws<OpenCircuitBreakerException>(() => State.Invoke(() => ""));
             }
         }
 
-        public class ExecutionSucceeded : CircuitBreakerStateTest<CircuitBreakerState>
+        public class ExecutionSucceeded : CircuitBreakerStateTest
         {
             private readonly CircuitBreakerSwitch _breakerSwitch = Substitute.For<CircuitBreakerSwitch>();
-            private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
 
             public ExecutionSucceeded()
             {
-                _state = new HalfOpenCircuitBreakerState(_breakerSwitch, _invoker, 2, TimeSpan.FromMilliseconds(10));
+                State = new HalfOpenCircuitBreakerState(
+                    _breakerSwitch, 
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default), 
+                    2, 
+                    TimeSpan.FromMilliseconds(10)
+                );
             }
 
             [Fact]
             public void ClosesTheBreakerWhenTheSuccessThresholdIsReached()
             {
-                _state.ExecutionSucceeded();
-                _state.ExecutionSucceeded();
+                State.ExecutionSucceeded();
+                State.ExecutionSucceeded();
 
-                _breakerSwitch.Received().Reset(_state);
+                _breakerSwitch.Received().Reset(State);
             }
 
             [Fact]
             public void OnlyClosesTheBreakerWhenTheSuccessThresholdIsReached()
             {
-                _state.ExecutionSucceeded();
+                State.ExecutionSucceeded();
 
-                _breakerSwitch.DidNotReceive().Reset(_state);
+                _breakerSwitch.DidNotReceive().Reset(State);
             }
         }
 
-        public class ExecutionFailed : CircuitBreakerStateTest<CircuitBreakerState>
+        public class ExecutionFailed : CircuitBreakerStateTest
         {
             private readonly CircuitBreakerSwitch _breakerSwitch = Substitute.For<CircuitBreakerSwitch>();
-            private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
 
             public ExecutionFailed()
             {
-                _state = new HalfOpenCircuitBreakerState(_breakerSwitch, _invoker, 2, TimeSpan.FromMilliseconds(10));
+                State = new HalfOpenCircuitBreakerState(
+                    _breakerSwitch, 
+                    new CircuitBreakerInvoker(TaskScheduler.Default), 
+                    2, 
+                    TimeSpan.FromMilliseconds(10)
+                );
             }
 
             [Fact]
             public void TripsTheSwitch()
             {
-                _state.ExecutionFailed();
+                State.ExecutionFailed();
 
-                _breakerSwitch.Received().Trip(_state);
+                _breakerSwitch.Received().Trip(State);
             }
         }
     }

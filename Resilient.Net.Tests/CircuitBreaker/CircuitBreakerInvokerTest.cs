@@ -12,8 +12,9 @@ namespace Resilient.Net.Tests
         {
             [Fact]
             public void WhenGivenAValidSchedule()
-            {				
+            {
                 new CircuitBreakerInvoker(TaskScheduler.Current);
+                Assert.True(true); // we made it!
             }
 
             [Fact]
@@ -51,11 +52,7 @@ namespace Resilient.Net.Tests
             [Fact]
             public void WhenTheTimeoutLapsesATimeoutExceptionIsThrown()
             {
-                Func<string> fn = () =>
-                {
-                    Thread.Sleep(50);
-                    return "not used";
-                };
+                Func<string> fn = TestFunctions.Delay(50, () => "not used");
 
                 Assert.Throws<CircuitBreakerTimeoutException>(() => _invoker.Invoke(
                     _state, 
@@ -67,11 +64,7 @@ namespace Resilient.Net.Tests
             [Fact]
             public void WhenATimeoutOccursTheStateIsNotified()
             {
-                Func<string> fn = () =>
-                {
-                    Thread.Sleep(50);
-                    return "not used";
-                };
+                Func<string> fn = TestFunctions.Delay(50, () => "not used");
 
                 Assert.Throws<CircuitBreakerTimeoutException>(() => 
 					_invoker.Invoke(_state, fn, TimeSpan.FromMilliseconds(10))
@@ -83,23 +76,17 @@ namespace Resilient.Net.Tests
             [Fact]
             public void WhenTheFunctionThrowsItsExceptionIsPropagated()
             {
-                Func<string> cmd = () =>
-                {
-                    throw new NotImplementedException();
-                };
+                var fn = TestFunctions.NotImplemented;
 
-                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, cmd, TimeSpan.FromSeconds(1)));
+                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, fn, TimeSpan.FromSeconds(1)));
             }
 
             [Fact]
             public void WhenFunctionThrowsTheStateIsNotified()
             {
-                Func<string> cmd = () =>
-                {
-                    throw new NotImplementedException();
-                };
+                var fn = TestFunctions.NotImplemented;
 
-                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, cmd, TimeSpan.FromSeconds(1)));
+                Assert.Throws<NotImplementedException>(() => _invoker.Invoke(_state, fn, TimeSpan.FromSeconds(1)));
                 _state.Received().ExecutionFailed();
             }
         }

@@ -10,7 +10,7 @@ namespace Resilient.Net
 
         public CircuitBreakerInvoker(TaskScheduler scheduler)
         {
-            _scheduler = scheduler.ValueOrThrow("scheduler");
+            _scheduler = scheduler.OrThrow("scheduler");
         }
 
         public virtual T Invoke<T>(CircuitBreakerState state, Func<T> function, TimeSpan timeout)

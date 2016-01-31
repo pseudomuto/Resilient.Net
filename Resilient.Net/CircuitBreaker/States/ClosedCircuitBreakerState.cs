@@ -14,10 +14,14 @@ namespace Resilient.Net
 
         public int Failures { get { return _failures; } }
 
-        public ClosedCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int errorThreshold, TimeSpan invocationTimeout)
-            : base(breakerSwitch, invoker)
+        public ClosedCircuitBreakerState(
+            CircuitBreakerSwitch @switch, 
+            CircuitBreakerInvoker invoker, 
+            int errorThreshold, 
+            TimeSpan invocationTimeout)
+            : base(@switch, invoker)
         {
-            _errorThreshold = errorThreshold.PositiveValueOrThrow("errorThreshold");
+            _errorThreshold = errorThreshold.PositiveOrThrow("errorThreshold");
             _invocationTimeout = invocationTimeout.PositiveOrThrow("invocationTimeout");
         }
 

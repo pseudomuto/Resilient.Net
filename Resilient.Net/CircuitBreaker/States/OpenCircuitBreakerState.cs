@@ -13,8 +13,11 @@ namespace Resilient.Net
 
         public bool Scheduled { get { return _scheduled == 1; } }
 
-        public OpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, TimeSpan resetTimeout)
-            : base(breakerSwitch, invoker)
+        public OpenCircuitBreakerState(
+            CircuitBreakerSwitch @switch, 
+            CircuitBreakerInvoker invoker, 
+            TimeSpan resetTimeout)
+            : base(@switch, invoker)
         {
             _resetTimeout = resetTimeout.PositiveOrThrow("resetTimeout");
         }

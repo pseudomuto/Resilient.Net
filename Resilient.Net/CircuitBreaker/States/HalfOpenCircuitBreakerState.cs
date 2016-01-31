@@ -13,10 +13,14 @@ namespace Resilient.Net
 
         public override CircuitBreakerStateType Type { get { return CircuitBreakerStateType.HalfOpen; } }
 
-        public HalfOpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int successThreshold, TimeSpan invocationTimeout)
-            : base(breakerSwitch, invoker)
+        public HalfOpenCircuitBreakerState(
+            CircuitBreakerSwitch @switch, 
+            CircuitBreakerInvoker invoker, 
+            int successThreshold, 
+            TimeSpan invocationTimeout)
+            : base(@switch, invoker)
         {
-            _successThreshold = successThreshold.PositiveValueOrThrow("successThreshold");
+            _successThreshold = successThreshold.PositiveOrThrow("successThreshold");
             _invocationTimeout = invocationTimeout.PositiveOrThrow("invocationTimeout");
         }
 

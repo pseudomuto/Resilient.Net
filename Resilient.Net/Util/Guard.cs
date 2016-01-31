@@ -4,7 +4,7 @@ namespace Resilient.Net
 {
     internal static class Guard
     {
-        public static void EnsureNotNull(this object value, string name)
+        public static void ThrowIfNull(this object value, string name)
         {
             if (value == null)
             {
@@ -12,7 +12,7 @@ namespace Resilient.Net
             }
         }
 
-        public static T ValueOrThrow<T>(this T value, string name) where T : class
+        public static T OrThrow<T>(this T value, string name) where T : class
         {
             if (value == null)
             {
@@ -22,7 +22,7 @@ namespace Resilient.Net
             return value;
         }
 
-        public static int PositiveValueOrThrow(this int value, string name)
+        public static int PositiveOrThrow(this int value, string name)
         {
             if (value < 1)
             {
@@ -34,7 +34,7 @@ namespace Resilient.Net
 
         public static TimeSpan PositiveOrThrow(this TimeSpan value, string name)
         {
-            ((int)value.TotalMilliseconds).PositiveValueOrThrow(name);
+            ((int)value.TotalMilliseconds).PositiveOrThrow(name);
             return value;
         }
     }

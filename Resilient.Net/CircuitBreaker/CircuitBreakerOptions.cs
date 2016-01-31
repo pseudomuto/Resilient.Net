@@ -7,13 +7,13 @@ namespace Resilient.Net
     /// </summary>
     public class CircuitBreakerOptions
     {
-        private static readonly string LogFormat = string.Join(
-                                                       " ",
-                                                       "ErrorThreshold={0}",
-                                                       "SuccessThreshold={1}",
-                                                       "InvocationTimeout={2}",
-                                                       "ResetTimeout={3}"
-                                                   );
+        private static readonly string s_logFormat = string.Join(
+                                                         " ",
+                                                         "ErrorThreshold={0}",
+                                                         "SuccessThreshold={1}",
+                                                         "InvocationTimeout={2}",
+                                                         "ResetTimeout={3}"
+                                                     );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Resilient.Net.CircuitBreakerOptions"/> class.
@@ -47,14 +47,17 @@ namespace Resilient.Net
         public TimeSpan ResetTimeout { get; set; }
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents the current <see cref="Resilient.Net.CircuitBreakerOptions"/>.
+        /// Returns a <see cref="System.String"/> that represents the current 
+        /// <see cref="Resilient.Net.CircuitBreakerOptions"/>.
         /// </summary>
         /// <remarks>This is intended for logging purposes</remarks>
-        /// <returns>A <see cref="System.String"/> that represents the current <see cref="Resilient.Net.CircuitBreakerOptions"/>.</returns>
+        /// <returns>
+        /// A <see cref="System.String"/> that represents the current <see cref="Resilient.Net.CircuitBreakerOptions"/>.
+        /// </returns>
         public override string ToString()
         {
             return string.Format(
-                LogFormat,
+                s_logFormat,
                 ErrorThreshold,
                 SuccessThreshold,
                 InvocationTimeout.TotalMilliseconds,

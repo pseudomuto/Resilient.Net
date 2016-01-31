@@ -148,10 +148,10 @@ namespace Resilient.Net
         /// <summary>
         /// Releases all resource used by the <see cref="Resilient.Net.CircuitBreaker"/> object.
         /// </summary>
-        /// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="Resilient.Net.CircuitBreaker"/>. The
-        /// <see cref="Dispose"/> method leaves the <see cref="Resilient.Net.CircuitBreaker"/> in an unusable state. After
-        /// calling <see cref="Dispose"/>, you must release all references to the <see cref="Resilient.Net.CircuitBreaker"/>
-        /// so the garbage collector can reclaim the memory that the <see cref="Resilient.Net.CircuitBreaker"/> was occupying.</remarks>
+        /// <remarks>Call <see cref="Dispose"/> when you are finished using the circuit breaker. The 
+        /// <see cref="Dispose"/> method leaves the <see cref="Resilient.Net.CircuitBreaker"/> in an unusable state. 
+        /// After calling <see cref="Dispose"/>, you must release all references to the circuit breaker so the garbage 
+        /// collector can reclaim the memory that was occupying.</remarks>
         public void Dispose()
         {
             Dispose(true);

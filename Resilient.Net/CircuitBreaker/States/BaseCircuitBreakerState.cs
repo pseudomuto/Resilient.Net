@@ -8,10 +8,10 @@ namespace Resilient.Net
 
         public CircuitBreakerInvoker Invoker { get; private set; }
 
-        protected BaseCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker)
+        protected BaseCircuitBreakerState(CircuitBreakerSwitch @switch, CircuitBreakerInvoker invoker)
         {
-            Switch = breakerSwitch.ValueOrThrow("breakerSwitch");
-            Invoker = invoker.ValueOrThrow("invoker");
+            Switch = @switch.OrThrow("@switch");
+            Invoker = invoker.OrThrow("invoker");
         }
 
         public abstract T Invoke<T>(Func<T> function);

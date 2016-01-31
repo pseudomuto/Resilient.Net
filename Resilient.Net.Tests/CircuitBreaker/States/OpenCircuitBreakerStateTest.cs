@@ -43,11 +43,11 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        public class Type : CircuitBreakerStateTest
         {
             public Type()
             {
-                _state = new OpenCircuitBreakerState(
+                State = new OpenCircuitBreakerState(
                     Substitute.For<CircuitBreakerSwitch>(),
                     Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
                     TimeSpan.FromMilliseconds(10)
@@ -57,19 +57,17 @@ namespace Resilient.Net.Tests
             [Fact]
             public void ReturnsOpen()
             {
-                Assert.Equal(CircuitBreakerStateType.Open, (_state as OpenCircuitBreakerState).Type);
+                Assert.Equal(CircuitBreakerStateType.Open, State.Type);
             }
         }
 
-        public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
+        public class BecomeActive : CircuitBreakerStateTest
         {
             public BecomeActive()
             {
-                var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
-
-                _state = new OpenCircuitBreakerState(
+                State = new OpenCircuitBreakerState(
                     Substitute.For<CircuitBreakerSwitch>(),
-                    invoker,
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
                     TimeSpan.FromMilliseconds(10)
                 );
             }
@@ -77,7 +75,7 @@ namespace Resilient.Net.Tests
             [Fact]
             public void SchedulesTransitionAfterTimeout()
             {
-                var state = _state as OpenCircuitBreakerState;
+                var state = As<OpenCircuitBreakerState>();
 
                 Assert.False(state.Scheduled);
 

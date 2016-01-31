@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 
 namespace Resilient.Net.Tests
@@ -99,12 +100,10 @@ namespace Resilient.Net.Tests
 
         public class ExecuteAction : BreakerTest
         {
-            private bool _hasRun = false;
-            private readonly Action _action;
+            private readonly Action _action = Substitute.For<Action>();
 
             public ExecuteAction()
             {
-                _action = () => _hasRun = true;
                 Breaker = new CircuitBreaker();
             }
 
@@ -112,22 +111,21 @@ namespace Resilient.Net.Tests
             public void InvokesTheActionWhenTheCircuitIsClosed()
             {
                 Assert.True(Breaker.IsClosed);
-                Assert.False(_hasRun);
 
                 Breaker.Execute(_action);
-                Assert.True(_hasRun);
+
+                _action.Received().Invoke();
             }
 
             [Fact]
             public void ReturnsTheResultWhenTheCircuitIsHalfOpen()
             {
                 Breaker.Force(CircuitBreakerStateType.HalfOpen);
-
                 Assert.True(Breaker.IsHalfOpen);
-                Assert.False(_hasRun);
 
                 Breaker.Execute(_action);
-                Assert.True(_hasRun);
+
+                _action.Received().Invoke();
             }
 
             [Fact]
@@ -135,10 +133,10 @@ namespace Resilient.Net.Tests
             {
                 Breaker.Force(CircuitBreakerStateType.Open);
                 Assert.True(Breaker.IsOpen);
-                Assert.False(_hasRun);
 
                 Assert.Throws<OpenCircuitBreakerException>(() => Breaker.Execute(_action));
-                Assert.False(_hasRun);
+
+                _action.DidNotReceive().Invoke();
             }
         }
 

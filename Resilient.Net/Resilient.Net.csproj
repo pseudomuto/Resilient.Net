@@ -41,12 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CircuitBreaker\Abstractions\CircuitBreaker.cs" />
     <Compile Include="CircuitBreaker\CircuitBreakerInvoker.cs" />
-    <Compile Include="CircuitBreaker\Abstractions\CircuitBreakerSwitch.cs" />
     <Compile Include="CircuitBreaker\CircuitBreakerOptions.cs" />
     <Compile Include="CircuitBreaker\Exceptions\OpenCircuitBreakerException.cs" />
-    <Compile Include="CircuitBreaker\Abstractions\CircuitBreakerState.cs" />
     <Compile Include="CircuitBreaker\Exceptions\CircuitBreakerTimeoutException.cs" />
     <Compile Include="CircuitBreaker\States\BaseCircuitBreakerState.cs" />
     <Compile Include="CircuitBreaker\States\ClosedCircuitBreakerState.cs" />
@@ -54,6 +51,9 @@
     <Compile Include="CircuitBreaker\States\OpenCircuitBreakerState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\Guard.cs" />
+    <Compile Include="CircuitBreaker\CircuitBreaker.cs" />
+    <Compile Include="CircuitBreaker\CircuitBreakerState.cs" />
+    <Compile Include="CircuitBreaker\CircuitBreakerSwitch.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

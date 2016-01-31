@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
@@ -16,7 +12,7 @@ namespace Resilient.Net
             }
         }
 
-        public static T ValueOrThrow<T>(this T value, string name)
+        public static T ValueOrThrow<T>(this T value, string name) where T : class
         {
             if (value == null)
             {
@@ -34,7 +30,7 @@ namespace Resilient.Net
             }
 
             return value;
-        }       
+        }
 
         public static TimeSpan PositiveOrThrow(this TimeSpan value, string name)
         {

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
@@ -14,7 +10,9 @@ namespace Resilient.Net
 
         private int _failures = 0;
 
-        public int Failures {  get { return _failures; } }
+        public override CircuitBreakerStateType Type { get { return CircuitBreakerStateType.Closed; } }
+
+        public int Failures { get { return _failures; } }
 
         public ClosedCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int errorThreshold, TimeSpan invocationTimeout)
             : base(breakerSwitch, invoker)

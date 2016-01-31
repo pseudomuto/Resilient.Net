@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Resilient.Net
 {
@@ -15,7 +11,9 @@ namespace Resilient.Net
         private int _successCount;
         private int _currentlyInvoking;
 
-        public HalfOpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int successThreshold, TimeSpan invocationTimeout) 
+        public override CircuitBreakerStateType Type { get { return CircuitBreakerStateType.HalfOpen; } }
+
+        public HalfOpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int successThreshold, TimeSpan invocationTimeout)
             : base(breakerSwitch, invoker)
         {
             _successThreshold = successThreshold.PositiveValueOrThrow("successThreshold");
@@ -31,7 +29,7 @@ namespace Resilient.Net
 
             throw new OpenCircuitBreakerException();
         }
-        
+
         public override void ExecutionSucceeded()
         {
             Interlocked.CompareExchange(ref _currentlyInvoking, 0, 1);

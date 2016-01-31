@@ -5,82 +5,100 @@ using Xunit;
 
 namespace Resilient.Net.Tests
 {
-	public static class OpenCircuitBreakerStateTest
-	{
-		public class Constructor
-		{
-			private readonly CircuitBreakerSwitch _switch = Substitute.For<CircuitBreakerSwitch>();
-			private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
+    public static class OpenCircuitBreakerStateTest
+    {
+        public class Constructor
+        {
+            private readonly CircuitBreakerSwitch _switch = Substitute.For<CircuitBreakerSwitch>();
+            private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
 
-			[Fact]
-			public void ThrowsWhenSwitchIsNull()
-			{
-				Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
-					null, 
-					_invoker, 
-					TimeSpan.FromMilliseconds(10)
-				));
-			}
+            [Fact]
+            public void ThrowsWhenSwitchIsNull()
+            {
+                Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
+                    null,
+                    _invoker,
+                    TimeSpan.FromMilliseconds(10)
+                ));
+            }
 
-			[Fact]
-			public void ThrowsWhenInvokerIsNull()
-			{
-				Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
-					_switch, 
-					null, 
-					TimeSpan.FromMilliseconds(10)
-				));
-			}
+            [Fact]
+            public void ThrowsWhenInvokerIsNull()
+            {
+                Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
+                    _switch,
+                    null,
+                    TimeSpan.FromMilliseconds(10)
+                ));
+            }
 
-			[Fact]
-			public void ThrowsWhenTimeoutIsNotPositive()
-			{
-				Assert.Throws<ArgumentOutOfRangeException>(() => new OpenCircuitBreakerState(
-					_switch, 
-					_invoker, 
-					TimeSpan.MinValue
-				));
-			}
-		}
+            [Fact]
+            public void ThrowsWhenTimeoutIsNotPositive()
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => new OpenCircuitBreakerState(
+                    _switch,
+                    _invoker,
+                    TimeSpan.MinValue
+                ));
+            }
+        }
 
-		public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
-		{
-			public BecomeActive()
-			{
-				var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
+        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        {
+            public Type()
+            {
+                _state = new OpenCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
+                    TimeSpan.FromMilliseconds(10)
+                );
+            }
 
-				_state = new OpenCircuitBreakerState(
-					Substitute.For<CircuitBreakerSwitch>(), 
-					invoker, 
-					TimeSpan.FromMilliseconds(10)
-				);
-			}
+            [Fact]
+            public void ReturnsOpen()
+            {
+                Assert.Equal(CircuitBreakerStateType.Open, (_state as OpenCircuitBreakerState).Type);
+            }
+        }
 
-			[Fact]
-			public void SchedulesTransitionAfterTimeout()
-			{
-				var state = _state as OpenCircuitBreakerState;
+        public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
+        {
+            public BecomeActive()
+            {
+                var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
 
-				Assert.False(state.Scheduled);
+                _state = new OpenCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    invoker,
+                    TimeSpan.FromMilliseconds(10)
+                );
+            }
 
-				state.BecomeActive();
-				Assert.True(state.Scheduled);
-			}
-		}
+            [Fact]
+            public void SchedulesTransitionAfterTimeout()
+            {
+                var state = _state as OpenCircuitBreakerState;
 
-		public class Invoke
-		{
-			[Fact]
-			public void ThrowsOpenCircuitBreakerException()
-			{
-				var state = new OpenCircuitBreakerState(
-					                        Substitute.For<CircuitBreakerSwitch>(), 
-					                        new CircuitBreakerInvoker(TaskScheduler.Default), 
-					                        TimeSpan.FromMilliseconds(1)
-				                        );
+                Assert.False(state.Scheduled);
 
-				Assert.Throws<OpenCircuitBreakerException>(() => state.Invoke(() => ""));
-			}
-		}
-	}
+                state.BecomeActive();
+                Assert.True(state.Scheduled);
+            }
+        }
+
+        public class Invoke
+        {
+            [Fact]
+            public void ThrowsOpenCircuitBreakerException()
+            {
+                var state = new OpenCircuitBreakerState(
+                                Substitute.For<CircuitBreakerSwitch>(),
+                                new CircuitBreakerInvoker(TaskScheduler.Default),
+                                TimeSpan.FromMilliseconds(1)
+                            );
+
+                Assert.Throws<OpenCircuitBreakerException>(() => state.Invoke(() => ""));
+            }
+        }
+    }
 }

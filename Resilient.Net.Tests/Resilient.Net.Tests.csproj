@@ -72,6 +72,7 @@
     <Compile Include="CircuitBreaker\Support\CircuitBreakerStateTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CircuitBreaker\CircuitBreakerOptionsTest.cs" />
+    <Compile Include="Support\TestTraceListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -99,4 +100,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Support\" />
+  </ItemGroup>
 </Project>

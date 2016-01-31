@@ -118,7 +118,7 @@ namespace Resilient.Net.Tests
             }
 
             [Fact]
-            public void ReturnsTheResultWhenTheCircuitIsHalfOpen()
+            public void InvokesTheActionWhenTheCircuitIsHalfOpen()
             {
                 Breaker.Force(CircuitBreakerStateType.HalfOpen);
                 Assert.True(Breaker.IsHalfOpen);

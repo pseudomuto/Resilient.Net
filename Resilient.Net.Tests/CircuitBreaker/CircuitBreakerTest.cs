@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 
 namespace Resilient.Net.Tests
@@ -97,11 +98,53 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Execute : BreakerTest
+        public class ExecuteAction : BreakerTest
+        {
+            private readonly Action _action = Substitute.For<Action>();
+
+            public ExecuteAction()
+            {
+                Breaker = new CircuitBreaker();
+            }
+
+            [Fact]
+            public void InvokesTheActionWhenTheCircuitIsClosed()
+            {
+                Assert.True(Breaker.IsClosed);
+
+                Breaker.Execute(_action);
+
+                _action.Received().Invoke();
+            }
+
+            [Fact]
+            public void InvokesTheActionWhenTheCircuitIsHalfOpen()
+            {
+                Breaker.Force(CircuitBreakerStateType.HalfOpen);
+                Assert.True(Breaker.IsHalfOpen);
+
+                Breaker.Execute(_action);
+
+                _action.Received().Invoke();
+            }
+
+            [Fact]
+            public void ThrowsWhenTheCircuitIsOpen()
+            {
+                Breaker.Force(CircuitBreakerStateType.Open);
+                Assert.True(Breaker.IsOpen);
+
+                Assert.Throws<OpenCircuitBreakerException>(() => Breaker.Execute(_action));
+
+                _action.DidNotReceive().Invoke();
+            }
+        }
+
+        public class ExecuteFunction : BreakerTest
         {
             private readonly Func<string> _function = () => "Dummy String";
 
-            public Execute()
+            public ExecuteFunction()
             {
                 Breaker = new CircuitBreaker();
             }

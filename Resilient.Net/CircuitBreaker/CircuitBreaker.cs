@@ -74,6 +74,19 @@ namespace Resilient.Net
         }
 
         /// <summary>
+        /// Execute the specified action.
+        /// </summary>
+        /// <param name="action">The action to run if the circuit is not open.</param>
+        public void Execute(Action action)
+        {
+            _currentState.Invoke(() =>
+            {
+                action.Invoke();
+                return true;
+            });
+        }
+
+        /// <summary>
         /// Execute the specified function.
         /// </summary>
         /// <param name="function">The function to execute if the circuit is not open.</param>

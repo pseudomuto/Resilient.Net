@@ -8,6 +8,8 @@ namespace Resilient.Net
         private Timer _timer;
         private readonly TimeSpan _resetTimeout;
 
+        public override CircuitBreakerStateType Type { get { return CircuitBreakerStateType.Open; } }
+
         public bool Scheduled { get; private set; }
 
         public OpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, TimeSpan resetTimeout)
@@ -26,7 +28,7 @@ namespace Resilient.Net
         }
 
         public override void ExecutionFailed()
-        {         
+        {
         }
 
         public override void BecomeActive()
@@ -42,7 +44,7 @@ namespace Resilient.Net
 
         private void HalfOpen()
         {
-            Switch.Try(this);            
+            Switch.Try(this);
             Scheduled = false;
         }
 

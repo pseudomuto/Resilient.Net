@@ -25,6 +25,12 @@ namespace Resilient.Net
         T Invoke<T>(Func<T> function);
 
         /// <summary>
+        /// The state that this implementation represents
+        /// </summary>
+        /// <value>The state.</value>
+        CircuitBreakerStateType Type { get; }
+
+        /// <summary>
         /// Code to run when this state becomes active. This will be called when this state is transitioned to.
         /// </summary>
         void BecomeActive();

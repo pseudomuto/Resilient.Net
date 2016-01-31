@@ -37,6 +37,25 @@ namespace Resilient.Net.Tests
             }
         }
 
+        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        {
+            public Type()
+            {
+                _state = new ClosedCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
+                    2,
+                    TimeSpan.FromMilliseconds(10)
+                );
+            }
+
+            [Fact]
+            public void ReturnsClosed()
+            {
+                Assert.Equal(CircuitBreakerStateType.Closed, (_state as ClosedCircuitBreakerState).Type);
+            }
+        }
+
         public class BecomeActive : CircuitBreakerStateTest<CircuitBreakerState>
         {
             private readonly CircuitBreakerInvoker _invoker = new CircuitBreakerInvoker(TaskScheduler.Default);

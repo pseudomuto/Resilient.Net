@@ -16,6 +16,8 @@ namespace Resilient.Net
 
         public abstract T Invoke<T>(Func<T> function);
 
+        public abstract CircuitBreakerStateType Type { get; }
+
         public abstract void BecomeActive();
 
         public abstract void ExecutionSucceeded();

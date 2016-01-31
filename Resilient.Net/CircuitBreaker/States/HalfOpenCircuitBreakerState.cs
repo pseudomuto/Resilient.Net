@@ -11,6 +11,8 @@ namespace Resilient.Net
         private int _successCount;
         private int _currentlyInvoking;
 
+        public override CircuitBreakerStateType Type { get { return CircuitBreakerStateType.HalfOpen; } }
+
         public HalfOpenCircuitBreakerState(CircuitBreakerSwitch breakerSwitch, CircuitBreakerInvoker invoker, int successThreshold, TimeSpan invocationTimeout)
             : base(breakerSwitch, invoker)
         {

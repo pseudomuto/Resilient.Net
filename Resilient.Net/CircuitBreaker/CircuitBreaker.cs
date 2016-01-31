@@ -11,7 +11,8 @@ namespace Resilient.Net
     public class CircuitBreaker : CircuitBreakerSwitch, IDisposable
     {
         private readonly CircuitBreakerInvoker _invoker;
-        private readonly Dictionary<CircuitBreakerStateType, CircuitBreakerState> _states;
+        private readonly CircuitBreakerOptions _options;
+        private readonly CircuitBreakerState[] _states;
 
         private CircuitBreakerState _currentState;
 
@@ -60,11 +61,13 @@ namespace Resilient.Net
         public CircuitBreaker(TaskScheduler scheduler, CircuitBreakerOptions options)
         {            
             _invoker = new CircuitBreakerInvoker(scheduler);
+            _options = options;
 
-            _states = new Dictionary<CircuitBreakerStateType, CircuitBreakerState>();
-            _states[CircuitBreakerStateType.Closed] = MakeStateForType(CircuitBreakerStateType.Closed, options);
-            _states[CircuitBreakerStateType.Open] = MakeStateForType(CircuitBreakerStateType.Open, options);
-            _states[CircuitBreakerStateType.HalfOpen] = MakeStateForType(CircuitBreakerStateType.HalfOpen, options);
+            _states = new CircuitBreakerState[] {
+                MakeStateForType(CircuitBreakerStateType.Closed, _options),
+                MakeStateForType(CircuitBreakerStateType.HalfOpen, _options),
+                MakeStateForType(CircuitBreakerStateType.Open, _options)
+            };
 
             _currentState = GetStateForType(CircuitBreakerStateType.Closed);
         }
@@ -150,7 +153,7 @@ namespace Resilient.Net
         {
             if (disposing)
             {
-                foreach (var state in _states.Values)
+                foreach (var state in _states)
                 {
                     var disposable = state as IDisposable;
 
@@ -196,7 +199,7 @@ namespace Resilient.Net
 
         private CircuitBreakerState GetStateForType(CircuitBreakerStateType type)
         {
-            return _states[type];
+            return _states.First(state => state.Type == type);
         }
     }
 }

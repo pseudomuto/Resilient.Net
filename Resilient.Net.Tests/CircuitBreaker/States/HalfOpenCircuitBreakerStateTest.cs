@@ -24,7 +24,7 @@ namespace Resilient.Net.Tests
                 Assert.Throws<ArgumentNullException>(() => new HalfOpenCircuitBreakerState(_switch, null, 1, TimeSpan.MaxValue));
             }
 
-            [Fact]            
+            [Fact]
             public void ThrowsWhenSuccessThresholdIsNotPositive()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(_switch, _invoker, 0, TimeSpan.MaxValue));
@@ -34,6 +34,25 @@ namespace Resilient.Net.Tests
             public void ThrowsWhenTimeoutIsNotPositive()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => new HalfOpenCircuitBreakerState(_switch, _invoker, 1, TimeSpan.MinValue));
+            }
+        }
+
+        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        {
+            public Type()
+            {
+                _state = new HalfOpenCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
+                    2,
+                    TimeSpan.FromMilliseconds(10)
+                );
+            }
+
+            [Fact]
+            public void ReturnsHalfOpen()
+            {
+                Assert.Equal(CircuitBreakerStateType.HalfOpen, (_state as HalfOpenCircuitBreakerState).Type);
             }
         }
 
@@ -54,7 +73,7 @@ namespace Resilient.Net.Tests
                 _mockInvoker.Received().Invoke(_state, Arg.Any<Func<string>>(), _timeout);
             }
 
-            [Fact]            
+            [Fact]
             public void OnlyAttemptsInvocationsOneAtATime()
             {
                 _state.Invoke(() => "");
@@ -102,7 +121,7 @@ namespace Resilient.Net.Tests
 
             [Fact]
             public void TripsTheSwitch()
-            {                
+            {
                 _state.ExecutionFailed();
 
                 _breakerSwitch.Received().Trip(_state);

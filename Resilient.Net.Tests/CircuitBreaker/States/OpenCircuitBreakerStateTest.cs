@@ -16,8 +16,8 @@ namespace Resilient.Net.Tests
             public void ThrowsWhenSwitchIsNull()
             {
                 Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
-                    null, 
-                    _invoker, 
+                    null,
+                    _invoker,
                     TimeSpan.FromMilliseconds(10)
                 ));
             }
@@ -26,8 +26,8 @@ namespace Resilient.Net.Tests
             public void ThrowsWhenInvokerIsNull()
             {
                 Assert.Throws<ArgumentNullException>(() => new OpenCircuitBreakerState(
-                    _switch, 
-                    null, 
+                    _switch,
+                    null,
                     TimeSpan.FromMilliseconds(10)
                 ));
             }
@@ -36,10 +36,28 @@ namespace Resilient.Net.Tests
             public void ThrowsWhenTimeoutIsNotPositive()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => new OpenCircuitBreakerState(
-                    _switch, 
-                    _invoker, 
+                    _switch,
+                    _invoker,
                     TimeSpan.MinValue
                 ));
+            }
+        }
+
+        public class Type : CircuitBreakerStateTest<CircuitBreakerState>
+        {
+            public Type()
+            {
+                _state = new OpenCircuitBreakerState(
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    Substitute.For<CircuitBreakerInvoker>(TaskScheduler.Default),
+                    TimeSpan.FromMilliseconds(10)
+                );
+            }
+
+            [Fact]
+            public void ReturnsOpen()
+            {
+                Assert.Equal(CircuitBreakerStateType.Open, (_state as OpenCircuitBreakerState).Type);
             }
         }
 
@@ -50,8 +68,8 @@ namespace Resilient.Net.Tests
                 var invoker = new CircuitBreakerInvoker(TaskScheduler.Default);
 
                 _state = new OpenCircuitBreakerState(
-                    Substitute.For<CircuitBreakerSwitch>(), 
-                    invoker, 
+                    Substitute.For<CircuitBreakerSwitch>(),
+                    invoker,
                     TimeSpan.FromMilliseconds(10)
                 );
             }
@@ -74,10 +92,10 @@ namespace Resilient.Net.Tests
             public void ThrowsOpenCircuitBreakerException()
             {
                 var state = new OpenCircuitBreakerState(
-                    Substitute.For<CircuitBreakerSwitch>(), 
-                    new CircuitBreakerInvoker(TaskScheduler.Default), 
-                    TimeSpan.FromMilliseconds(1)
-                );
+                                Substitute.For<CircuitBreakerSwitch>(),
+                                new CircuitBreakerInvoker(TaskScheduler.Default),
+                                TimeSpan.FromMilliseconds(1)
+                            );
 
                 Assert.Throws<OpenCircuitBreakerException>(() => state.Invoke(() => ""));
             }

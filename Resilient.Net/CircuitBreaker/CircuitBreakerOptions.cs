@@ -20,7 +20,7 @@ namespace Resilient.Net
 
         /// <summary>
         /// The number of errors to receive before the breaker is tripped.
-        /// </summary>		
+        /// </summary>
         public int ErrorThreshold { get; set; }
 
         /// <summary>

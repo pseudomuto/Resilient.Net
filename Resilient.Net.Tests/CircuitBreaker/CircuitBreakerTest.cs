@@ -97,11 +97,56 @@ namespace Resilient.Net.Tests
             }
         }
 
-        public class Execute : BreakerTest
+        public class ExecuteAction : BreakerTest
+        {
+            private bool _hasRun = false;
+            private readonly Action _action;
+
+            public ExecuteAction()
+            {
+                _action = () => _hasRun = true;
+                Breaker = new CircuitBreaker();
+            }
+
+            [Fact]
+            public void InvokesTheActionWhenTheCircuitIsClosed()
+            {
+                Assert.True(Breaker.IsClosed);
+                Assert.False(_hasRun);
+
+                Breaker.Execute(_action);
+                Assert.True(_hasRun);
+            }
+
+            [Fact]
+            public void ReturnsTheResultWhenTheCircuitIsHalfOpen()
+            {
+                Breaker.Force(CircuitBreakerStateType.HalfOpen);
+
+                Assert.True(Breaker.IsHalfOpen);
+                Assert.False(_hasRun);
+
+                Breaker.Execute(_action);
+                Assert.True(_hasRun);
+            }
+
+            [Fact]
+            public void ThrowsWhenTheCircuitIsOpen()
+            {
+                Breaker.Force(CircuitBreakerStateType.Open);
+                Assert.True(Breaker.IsOpen);
+                Assert.False(_hasRun);
+
+                Assert.Throws<OpenCircuitBreakerException>(() => Breaker.Execute(_action));
+                Assert.False(_hasRun);
+            }
+        }
+
+        public class ExecuteFunction : BreakerTest
         {
             private readonly Func<string> _function = () => "Dummy String";
 
-            public Execute()
+            public ExecuteFunction()
             {
                 Breaker = new CircuitBreaker();
             }

@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.travis.yml = .travis.yml
 		README.md = README.md
 		circuitbreaker.png = circuitbreaker.png
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		LICENSE = LICENSE
+		xs_custom_command.png = xs_custom_command.png
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resilient.Net.Tests", "Resilient.Net.Tests\Resilient.Net.Tests.csproj", "{73542D63-0A50-44B4-AAFE-5DA4765670D6}"

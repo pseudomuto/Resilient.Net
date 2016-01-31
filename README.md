@@ -14,31 +14,29 @@ The basic idea is that if a timeout (or other exception) occurs for a given reso
 some amount of time. Instead of constantly hitting the timeout, which ties up all your threads, the resource is marked
 as unavailable for some amount of time.  While unavailable, calls immediately trigger an exception.
 
-<div style="text-align: center">
-  <img src="circuitbreaker.png" alt="Circuit Breaker">
-</div>
+![Circuit Breaker](circuitbreaker.png)
 
 ### Circuit Breaker States
 
 A circuit breaker can be in one of three states at any point in time. Transitioning from state to state is managed
 automatically, however you can force a state using the `Force` method if necessary.
 
-Closed
-:
-  The call is made. If an exception is thrown, the error count is incremented. Once the threshold is reached the circuit
-  is opened.
+_**Closed**_
 
-Open
-:
-  Calling `Execute` will immediately trigger an `OpenCircuitBreakerException` without attempting to call/query the
-  external resource.
+The call is made. If an exception is thrown, the error count is incremented. Once the threshold is reached the circuit
+is opened.
 
-: After the `ResetTimeout` has lapsed, the circuit is moved to the half-open state.
+_**Open**_
 
-Half Open
-:
-  Calls are allowed through (one at a time) until the success threshold is reached, which will close the circuit. If an
-  exception occurs at any point, the circuit is opened again.
+Calling `Execute` will immediately trigger an `OpenCircuitBreakerException` without attempting to call/query the
+external resource.
+
+After the `ResetTimeout` has lapsed, the circuit is moved to the half-open state.
+
+_**Half Open**_
+
+Calls are allowed through (one at a time) until the success threshold is reached, which will close the circuit. If an
+exception occurs at any point, the circuit is opened again.
 
 > **NOTE:** State is local to an instance of `CircuitBreaker`. However, all methods are thread-safe, which means it is
 completely safe to keep a static instance around to share within your process.
@@ -71,7 +69,7 @@ using(var breaker = new CircuitBreaker(TaskScheduler.Default, options))
 {
     try
     {
-        breaker.Execute(() =>
+        return breaker.Execute(() =>
         {
             // do something volatile...
             return "the result";
@@ -113,7 +111,7 @@ class JSONFetcher : IDisposable
 
         try
         {
-            _breaker.Execute(() =>
+            return _breaker.Execute(() =>
             {
                 using(var client = new WebClient())
                 {

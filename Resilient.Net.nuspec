@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>resilient.net</id>
+    <version>$version$</version>
+    <title>Resilient.Net</title>
+    <authors>David Muto (pseudomuto)</authors>
+    <owners>David Muto (pseudomuto)</owners>
+    <licenseUrl>https://github.com/pseudomuto/Resilient.Net/blob/master/LICENSE</licenseUrl>
+    <projectUrl>http://github.com/pseudomuto/Resilient.Net</projectUrl>
+    <!-- <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl> -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A library to help make applications more resilient to failures.</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Resiliency Reliability CircuitBreaker</tags>
+  </metadata>
+  <files>
+    <file src="Resilient.Net/bin/Release/*.dll" target="lib/net45" />
+    <file src="LICENSE" />
+    <file src="README.md" />
+  </files>
+</package>

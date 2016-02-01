@@ -4,3 +4,9 @@ solution: Resilient.Net.sln
 script:
   - xbuild /p:Configuration=Release Resilient.Net.sln
   - mono ./packages/xunit.runner.console.*/tools/xunit.console.exe ./Resilient.Net.Tests/bin/Release/Resilient.Net.Tests.dll
+
+deploy:
+  provider: script
+  script: scripts/package
+  on:
+    tags: true

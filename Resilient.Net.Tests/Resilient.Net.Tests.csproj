@@ -74,6 +74,9 @@
     <Compile Include="CircuitBreaker\CircuitBreakerOptionsTest.cs" />
     <Compile Include="Support\TestTraceListener.cs" />
     <Compile Include="Support\TestFunctions.cs" />
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

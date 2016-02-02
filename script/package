@@ -24,9 +24,9 @@ function package_nuspec {
 }
 
 function push_package {
-  "${NUGET_API_KEY:?NuGet API key not defined}"
+  api_key="${NUGET_API_KEY:?NuGet API key not defined}"
   say "Publishing $PRODUCT v$VERSION to NuGet..."
-  nuget push $OUTPUT_DIR/resilient.net.*.nupkg "$NUGET_API_KEY"
+  nuget push $OUTPUT_DIR/resilient.net.*.nupkg $api_key
 }
 
 build_solution

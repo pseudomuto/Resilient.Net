@@ -1,8 +1,17 @@
 # Resilient.Net
 
 [![Build Status](https://travis-ci.org/pseudomuto/Resilient.Net.svg?branch=master)](https://travis-ci.org/pseudomuto/Resilient.Net)
+[![NuGet](https://img.shields.io/nuget/dt/resilient.net.svg)](https://www.nuget.org/packages/resilient.net/)
 
 A library to help make applications more resilient to failures.
+
+## Installation
+
+Resilient.Net is available on NuGet.
+
+```
+Install-Package resilient.net
+```
 
 [Circuit Breaker Pattern]: https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern
 

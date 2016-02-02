@@ -1,6 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-set -vx
 
 PRODUCT=$(sed -n 's/.*AssemblyProduct("\([^"]*\)")]/\1/p' ./SolutionInfo.cs)
 VERSION=$(sed -n 's/.*AssemblyInformationalVersion("\([^"]*\)")]/\1/p' ./SolutionInfo.cs)

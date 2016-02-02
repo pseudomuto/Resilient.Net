@@ -8,6 +8,6 @@ script:
 deploy:
   provider: script
   skip_cleanup: true
-  script: scripts/package
+  script: script/package
   on:
     tags: true

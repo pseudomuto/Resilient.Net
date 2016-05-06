@@ -106,6 +106,7 @@ code in a primitive you can use instead.
 
 ```csharp
 class JSONFetcher : IDisposable
+{
     private readonly CircuitBreaker _breaker;
 
     public JSONFetcher()
@@ -154,13 +155,14 @@ class JSONFetcher : IDisposable
             _breaker.Dispose();
         }
     }
-end
+}
 ```
 
 Then this class can be used anywhere you fetch JSON strings like this:
 
 ```csharp
 public class PostAPI
+{
     private static readonly string s_host = "http://jsonplaceholder.typicode.com";
     private static readonly JSONFetcher s_fetcher = new JSONFetcher();
 
@@ -175,5 +177,5 @@ public class PostAPI
         // convert to your model...
         return model;
     }
-end
+}
 ```
